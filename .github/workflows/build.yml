@@ -28,14 +28,15 @@ jobs:
 
       - name: Surume ekle
         if: startsWith(github.ref, 'refs/tags/v')
-        shell: powershell
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
         run: |
-          $hash = (Get-FileHash dist/PCHizlandirici.exe -Algorithm SHA256).Hash
-          gh release view "${{ github.ref_name }}" 2>$null
-          if ($LASTEXITCODE -ne 0) {
-            gh release create "${{ github.ref_name }}" dist/PCHizlandirici.exe --title "PC Hizlandirici ${{ github.ref_name }}" --notes "SHA256: $hash"
-          } else {
-            gh release upload "${{ github.ref_name }}" dist/PCHizlandirici.exe --clobber
-          }
+          hash=$(sha256sum dist/PCHizlandirici.exe | cut -d' ' -f1)
+          notes=$(printf 'Format sonrasi tek tikla tam oyun performansi.\n\n1. PCHizlandirici.exe dosyasini indirin\n2. Cift tiklayin, yonetici izni verin\n3. OPTIMIZE ET butonuna basin ve yeniden baslatin\n\nSmartScreen uyarisi cikarsa: Ek bilgi > Yine de calistir\n\nSHA256: %s' "$hash")
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/PCHizlandirici.exe --clobber
+          else
+            gh release create "$TAG" dist/PCHizlandirici.exe --title "PC Hizlandirici $TAG" --notes "$notes"
+          fi
