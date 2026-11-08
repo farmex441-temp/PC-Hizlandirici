@@ -1,0 +1,41 @@
+name: Derle
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Derle
+        shell: powershell
+        run: ./build.ps1
+
+      - name: Exe'yi yukle (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: PCHizlandirici
+          path: dist/PCHizlandirici.exe
+
+      - name: Surume ekle
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $hash = (Get-FileHash dist/PCHizlandirici.exe -Algorithm SHA256).Hash
+          gh release view "${{ github.ref_name }}" 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create "${{ github.ref_name }}" dist/PCHizlandirici.exe --title "PC Hizlandirici ${{ github.ref_name }}" --notes "SHA256: $hash"
+          } else {
+            gh release upload "${{ github.ref_name }}" dist/PCHizlandirici.exe --clobber
+          }
