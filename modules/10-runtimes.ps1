@@ -39,11 +39,11 @@ foreach ($p in $packages) {
     if (-not (Test-Signed $file 'Microsoft')) { Fail "$name dosyasının Microsoft imzası doğrulanamadı, KURULMADI."; continue }
     Say "Kuruluyor: $name"
     if ($file.EndsWith('.msi')) {
-        $proc = Start-Process msiexec.exe -ArgumentList "/i `"$file`" /qn /norestart" -Wait -PassThru -WindowStyle Hidden
+        $code = Invoke-Process "$env:SystemRoot\System32\msiexec.exe" "/i `"$file`" /qn /norestart" 600
     } else {
-        $proc = Start-Process $file -ArgumentList $argList -Wait -PassThru -WindowStyle Hidden
+        $code = Invoke-Process $file $argList 600
     }
-    if ($okCodes -contains $proc.ExitCode) { Ok "$name hazır." } else { Warn "$name kurulum kodu: $($proc.ExitCode)" }
+    if ($okCodes -contains $code) { Ok "$name hazır." } elseif ($code -ge 0) { Warn "$name kurulum kodu: $code" }
 }
 
 # ---------- DirectX (Haziran 2010) ----------
@@ -53,25 +53,24 @@ $dxDir = Join-Path $dl 'directx'
 if (Get-File 'https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe' $dxExe) {
     if (Test-Signed $dxExe 'Microsoft') {
         New-Item -ItemType Directory -Force -Path $dxDir | Out-Null
-        Start-Process $dxExe -ArgumentList "/Q /T:`"$dxDir`"" -Wait -WindowStyle Hidden
+        $null = Invoke-Process $dxExe "/Q /T:`"$dxDir`"" 300
         $setup = Join-Path $dxDir 'DXSETUP.exe'
         if (Test-Path $setup) {
             Say "Kuruluyor: DirectX"
-            $proc = Start-Process $setup -ArgumentList '/silent' -Wait -PassThru -WindowStyle Hidden
-            if ($proc.ExitCode -eq 0) { Ok "DirectX hazır." } else { Warn "DirectX kurulum kodu: $($proc.ExitCode)" }
+            $code = Invoke-Process $setup '/silent' 900
+            if ($code -eq 0) { Ok "DirectX hazır." } elseif ($code -ge 0) { Warn "DirectX kurulum kodu: $code" }
         } else { Fail "DirectX arşivi açılamadı." }
     } else { Fail "DirectX imzası doğrulanamadı, KURULMADI." }
 } else { Fail "DirectX indirilemedi." }
 
 # ---------- .NET Framework 3.5 (eski oyunlar/uygulamalar) ----------
 Say "Etkinleştiriliyor: .NET Framework 3.5 (Windows Update üzerinden, birkaç dakika sürebilir)"
-try {
-    $f = Get-WindowsOptionalFeature -Online -FeatureName NetFx3 -ErrorAction Stop
-    if ($f.State -eq 'Enabled') { Ok ".NET Framework 3.5 zaten açık." }
-    else {
-        Enable-WindowsOptionalFeature -Online -FeatureName NetFx3 -All -NoRestart -ErrorAction Stop | Out-Null
-        Ok ".NET Framework 3.5 etkinleştirildi."
-    }
-} catch { Warn ".NET Framework 3.5 etkinleştirilemedi: $($_.Exception.Message)" }
+$f = Get-WindowsOptionalFeature -Online -FeatureName NetFx3 -ErrorAction SilentlyContinue
+if ($f -and $f.State -eq 'Enabled') { Ok ".NET Framework 3.5 zaten açık." }
+else {
+    $code = Invoke-Process "$env:SystemRoot\System32\dism.exe" '/Online /Enable-Feature /FeatureName:NetFx3 /All /NoRestart /Quiet' 1200
+    if ($code -eq 0 -or $code -eq 3010) { Ok ".NET Framework 3.5 etkinleştirildi." }
+    elseif ($code -ge 0) { Warn ".NET Framework 3.5 etkinleştirilemedi (kod $code). Ayarlar > Uygulamalar > İsteğe bağlı özellikler'den açabilirsiniz." }
+}
 
 Remove-Item -Recurse -Force $dl -ErrorAction SilentlyContinue

@@ -1,14 +1,14 @@
-﻿# @name: Xbox Uygulamalarını ve Game Bar'ı Kaldır
+﻿# @name: Xbox Uygulamasını ve Game Bar'ı Kaldır
 # @category: Gelişmiş (Risk)
 # @default: false
-# @desc: Xbox uygulaması, Game Bar, Xbox kimlik sağlayıcısı ve Gaming Services tamamen kaldırılır. RİSK: Xbox Game Pass / PC Game Pass oyunları ve Microsoft Store oyunları ÇALIŞMAZ. Bu oyunları oynamıyorsanız seçin. Geri getirmek için Microsoft Store'dan "Xbox" uygulamasını kurmanız yeterli.
+# @desc: Xbox uygulaması ve Game Bar katmanı kaldırılır. Xbox hesabıyla giriş altyapısı (Minecraft, Forza, Halo vb. için gerekli) KORUNUR. RİSK: Game Pass oyunlarını yüklemek/başlatmak için Xbox uygulaması gerekir; Game Pass kullanıyorsanız seçmeyin. Geri getirmek için Microsoft Store'dan "Xbox" uygulamasını kurmanız yeterli.
 
-Stop-Process -Name GameBar, GameBarFTServer, XboxPcApp, gamingservices, gamingservicesnet -Force -ErrorAction SilentlyContinue
-foreach ($a in 'Microsoft.GamingApp', 'Microsoft.XboxGamingOverlay', 'Microsoft.XboxGameOverlay', 'Microsoft.XboxSpeechToTextOverlay',
-              'Microsoft.XboxIdentityProvider', 'Microsoft.Xbox.TCUI', 'Microsoft.XboxApp', 'Microsoft.GamingServices') {
+Stop-Process -Name GameBar, GameBarFTServer, XboxPcApp -Force -ErrorAction SilentlyContinue
+# XboxIdentityProvider, Xbox.TCUI ve GamingServices KORUNUR: Minecraft, Forza, Halo MCC, Sea of Thieves gibi
+# Steam oyunları da Xbox hesabıyla giriş için bunlara ihtiyaç duyar.
+foreach ($a in 'Microsoft.GamingApp', 'Microsoft.XboxGamingOverlay', 'Microsoft.XboxGameOverlay', 'Microsoft.XboxSpeechToTextOverlay', 'Microsoft.XboxApp') {
     Remove-AppxSafe $a
 }
-foreach ($s in 'XblAuthManager', 'XblGameSave', 'XboxGipSvc', 'XboxNetApiSvc') { Set-ServiceStart $s 'Manual' }
 # Game Bar kaldırıldıktan sonra "ms-gamebar" bağlantısı açılmaya çalışınca çıkan uyarıyı engelle
 Set-Reg 'HKCU:\Software\Microsoft\GameBar' 'UseNexusForGameBarEnabled' 0
 Set-Reg 'HKCU:\System\GameConfigStore' 'GameDVR_Enabled' 0

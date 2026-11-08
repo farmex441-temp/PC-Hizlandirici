@@ -10,7 +10,7 @@ Say "Bulunan kart: $(($gpu | Select-Object -First 1).Name)"
 $driverOk = Test-Path "$env:SystemRoot\System32\nvapi64.dll"
 if (-not $driverOk) {
     Warn "NVIDIA sürücüsü kurulu değil! Profil ayarları için önce sürücüyü kurun, sonra bu modülü tekrar çalıştırın."
-    Start-Process 'https://www.nvidia.com/tr-tr/drivers/'
+    Open-Url 'https://www.nvidia.com/tr-tr/drivers/'
 }
 
 # --- Kayıt defteri ayarları ---
@@ -116,6 +116,6 @@ Set-Content -Path $nipFile -Value $nip -Encoding Unicode -Force
 Copy-Item $nipFile (Join-Path $dir 'pc-hizlandirici.nip') -Force -ErrorAction SilentlyContinue
 
 Say "Profil içe aktarılıyor..."
-$p = Start-Process $exe -ArgumentList "-silentImport `"$nipFile`"" -Wait -PassThru -WindowStyle Hidden
-if ($p.ExitCode -eq 0) { Ok "NVIDIA %100 performans profili uygulandı." }
-else { Warn "Profile Inspector çıkış kodu: $($p.ExitCode). Ayarları elle uygulamak için: $dir\pc-hizlandirici.nip dosyasını Inspector'da açın." }
+$code = Invoke-Process $exe "-silentImport `"$nipFile`"" 180
+if ($code -eq 0) { Ok "NVIDIA %100 performans profili uygulandı." }
+else { Warn "Profile Inspector çıkış kodu: $code. Ayarları elle uygulamak için Başlat > NVIDIA Profile Inspector'ı açıp $dir\pc-hizlandirici.nip dosyasını içe aktarın." }

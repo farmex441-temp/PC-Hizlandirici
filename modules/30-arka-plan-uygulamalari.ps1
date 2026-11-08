@@ -1,11 +1,12 @@
 ﻿# @name: Arka Plan Uygulamalarını Kapat
 # @category: Windows Temizliği
 # @default: true
-# @desc: Mağaza (UWP) uygulamalarının siz kullanmazken arka planda çalışmasını tamamen engeller. RAM ve CPU boşa harcanmaz.
+# @desc: Mağaza (UWP) uygulamalarının siz kullanmazken arka planda çalışması kapatılır, RAM ve CPU boşa harcanmaz. Kilitleyen ilke kullanılmaz: belirli bir uygulamaya (ör. Saat/Alarm) izin vermek isterseniz Ayarlar > Uygulamalar'dan açabilirsiniz. Başlat araması etkilenmez.
 
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy' 'LetAppsRunInBackground' 2
 Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications' 'GlobalUserDisabled' 1
-Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Search' 'BackgroundAppGlobalToggle' 0
+# Önceki sürümlerin yazdığı ve Windows 10'da aramayı bozabilen ayarları temizle
+Remove-RegValue 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Search' 'BackgroundAppGlobalToggle'
+Remove-RegValue 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy' 'LetAppsRunInBackground'
 Ok "Arka plan uygulamaları kapatıldı."
 
 # Kapatılan uygulamaları oturum açınca yeniden başlatma

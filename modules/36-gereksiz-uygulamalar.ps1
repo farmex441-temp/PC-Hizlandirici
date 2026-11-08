@@ -1,7 +1,7 @@
 ﻿# @name: Gereksiz Uygulamaları Kaldır (Bloatware)
 # @category: Windows Temizliği
 # @default: true
-# @desc: Windows ile gelen gereksiz uygulamalar kaldırılır: Clipchamp, Haberler, Hava Durumu, Başlarken, Yardım Al, Solitaire, Kişiler, Power Automate, To Do, Geri Bildirim Merkezi, Haritalar, Filmler ve TV, Posta/Takvim, Outlook (yeni), Teams, Telefon Bağlantısı, Aile, Dev Home, Skype, Candy Crush, Spotify/TikTok/Instagram gibi reklam kısayolları. Mağaza, Hesap Makinesi, Fotoğraflar, Not Defteri, Paint, Terminal, Ekran Alıntısı Aracı, Medya Oynatıcı ve Xbox uygulamaları KORUNUR.
+# @desc: Windows ile gelen gereksiz uygulamalar kaldırılır: Clipchamp, Haberler, Hava Durumu, Başlarken, Yardım Al, Solitaire, Kişiler, Power Automate, To Do, Geri Bildirim Merkezi, Haritalar, Filmler ve TV, Posta/Takvim, Outlook (yeni), Teams, Telefon Bağlantısı, Aile, Dev Home, Skype, Paint 3D, Candy Crush gibi reklam oyunları. Mağaza, Hesap Makinesi, Fotoğraflar, Not Defteri, Paint, Terminal, Ekran Alıntısı Aracı, Medya Oynatıcı ve Xbox uygulamaları KORUNUR.
 
 $apps = @(
     'Clipchamp.Clipchamp',
@@ -39,25 +39,18 @@ $apps = @(
     'MSTeams',
     'Microsoft.MicrosoftJournal',
     'MicrosoftWindows.CrossDevice',
+    'Microsoft.MSPaint',                     # Paint 3D (yeni Paint korunur)
+    'Microsoft.Microsoft3DViewer',
     '*CandyCrush*',
     '*BubbleWitch*',
-    '*Disney*',
-    '*Facebook*',
-    '*Instagram*',
-    '*TikTok*',
-    '*Twitter*',
-    '*LinkedIn*',
-    '*Netflix*',
-    '*Spotify*',
     '*king.com*',
-    '*AmazonVideo*',
-    '*PrimeVideo*',
     '*HiddenCity*',
     '*MarchofEmpires*',
-    '*Duolingo*',
-    '*PicsArt*',
     '*Royal Revolt*'
 )
+# Not: Spotify, Netflix, Instagram, TikTok gibi uygulamalar BİLEREK listede yok;
+# siz kurduktan sonra programı tekrar çalıştırırsanız silinmesinler diye.
+# Windows'un bunları kendiliğinden kurması "Bildirimler" modülünde engellenir.
 
 foreach ($a in $apps) { Remove-AppxSafe $a }
 Ok "Gereksiz uygulamalar kaldırıldı."

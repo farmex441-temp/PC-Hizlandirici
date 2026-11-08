@@ -1,9 +1,15 @@
 ﻿# @name: Başlangıç Uygulamalarını Kapat
 # @category: Windows Temizliği
 # @default: true
-# @desc: Windows açılırken otomatik başlayan tüm programları (Görev Yöneticisi > Başlangıç sekmesindekiler) devre dışı bırakır. Windows Güvenliği hariç. Hiçbir şey silinmez; istediğinizi Görev Yöneticisi'nden tekrar açabilirsiniz. Sonradan kurduğunuz programlar (Discord, Steam vb.) için modülü tekrar çalıştırabilirsiniz.
+# @desc: Windows açılırken otomatik başlayan tüm programları (Görev Yöneticisi > Başlangıç sekmesindekiler) devre dışı bırakır. Windows Güvenliği ve dizüstü touchpad sürücüleri hariç. Açılıştaki başlangıç gecikmesi de kaldırılır. Hiçbir şey silinmez; istediğinizi Görev Yöneticisi'nden tekrar açabilirsiniz. Sonradan kurduğunuz programlar (Discord, Steam vb.) için modülü tekrar çalıştırabilirsiniz.
 
-$keep = @('SecurityHealth')
+# Dokunulmayacaklar: Windows Güvenliği ve dizüstü touchpad sürücüleri (kapanırsa hareketler çalışmaz)
+$keep = @('SecurityHealth', 'Syn*', 'ETD*', 'Elan*', '*Touchpad*', '*TouchPad*', '*PrecisionTouch*', 'ctfmon')
+function Test-Keep ([string]$n) { foreach ($k in $keep) { if ($n -like $k) { return $true } }; return $false }
+
+# Windows'un masaüstü açıldıktan sonra başlangıç uygulamalarını bekletmesini kaldır
+Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize' 'StartupDelayInMSec' 0
+Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize' 'WaitForIdleState' 0
 # Görev Yöneticisi'nin kullandığı "devre dışı" değeri: 03 00 00 00 + zaman damgası
 $disabled = [byte[]](@(0x03, 0x00, 0x00, 0x00) + [BitConverter]::GetBytes([DateTime]::Now.ToFileTime()))
 
@@ -19,7 +25,7 @@ foreach ($s in $sources) {
     if (-not $props) { continue }
     foreach ($p in $props.PSObject.Properties) {
         if ($p.Name -like 'PS*') { continue }
-        if ($keep -contains $p.Name) { continue }
+        if (Test-Keep $p.Name) { Say "Korundu: $($p.Name)"; continue }
         Set-Reg $s[1] $p.Name $disabled Binary
         Say "Kapatıldı: $($p.Name)"
         $n++

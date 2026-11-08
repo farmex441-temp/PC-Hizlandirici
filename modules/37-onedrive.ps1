@@ -1,14 +1,17 @@
 ﻿# @name: OneDrive'ı Kaldır
 # @category: Windows Temizliği
 # @default: true
-# @desc: OneDrive kaldırılır ve tekrar kurulması engellenir, Dosya Gezgini'ndeki OneDrive girdisi gizlenir. GÜVENLİK: Masaüstü/Belgeler/Resimler klasörleriniz OneDrive'a yedekleniyorsa (klasörler OneDrive içindeyse) dosya kaybı olmaması için bu modül otomatik olarak ATLANIR.
+# @desc: OneDrive kaldırılır ve tekrar kurulması engellenir, Dosya Gezgini'ndeki OneDrive girdisi gizlenir. GÜVENLİK: Masaüstü/Belgeler/Resimler/Müzik/Videolar klasörlerinizden biri OneDrive'a yedekleniyorsa (klasörler OneDrive içindeyse) dosya kaybı olmaması için bu modül otomatik olarak ATLANIR.
 
 # Bilinen klasörler OneDrive'a yönlendirilmiş mi?
 $usf = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders' -ErrorAction SilentlyContinue
+# Herhangi bir bilinen klasör (Masaüstü, Belgeler, Resimler, Müzik, Videolar...) OneDrive içindeyse dokunma
 $redirected = @()
-foreach ($n in 'Desktop', 'Personal', 'My Pictures', '{F42EE2D3-909F-4907-8871-4C22FC0BF756}', '{0DDD015D-B06C-45D5-8C4C-F59713854639}') {
-    $v = $usf.$n
-    if ($v -and $v -match 'OneDrive') { $redirected += $v }
+if ($usf) {
+    foreach ($prop in $usf.PSObject.Properties) {
+        if ($prop.Name -like 'PS*') { continue }
+        if ([string]$prop.Value -match 'OneDrive') { $redirected += $prop.Value }
+    }
 }
 if ($redirected.Count -gt 0) {
     Warn "Masaüstü/Belgeler/Resimler OneDrive klasöründe. Dosyalarınızı korumak için OneDrive KALDIRILMADI."
@@ -30,14 +33,15 @@ $setups += Get-ChildItem "$env:ProgramFiles\Microsoft OneDrive\*\OneDriveSetup.e
 $done = $false
 foreach ($s in $setups) {
     if (Test-Path $s) {
-        Start-Process $s -ArgumentList '/uninstall' -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
-        Start-Process $s -ArgumentList '/uninstall /allusers' -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+        $null = Invoke-Process $s '/uninstall' 180
+        $null = Invoke-Process $s '/uninstall /allusers' 180
         $done = $true
     }
 }
 # winget ile kurulmuş olabilir
-if (Get-Command winget -ErrorAction SilentlyContinue) {
-    winget uninstall --id Microsoft.OneDrive --silent --accept-source-agreements 2>&1 | Out-Null
+$wg = Get-Command winget -ErrorAction SilentlyContinue
+if ($wg) {
+    $null = Invoke-Process $wg.Source 'uninstall --id Microsoft.OneDrive --silent --accept-source-agreements --disable-interactivity' 180
 }
 if ($done) { Ok "OneDrive kaldırıldı." } else { Say "OneDrive kurulu görünmüyor." }
 

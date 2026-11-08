@@ -26,15 +26,42 @@ function Request-ExplorerRestart { Write-Host '##EXPLORER##' }
 function Get-WinBuild { [int](Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').CurrentBuildNumber }
 function Test-Win11   { (Get-WinBuild) -ge 22000 }
 
+# Herhangi bir HTTP cevabi (403/404 dahil) baglanti var demektir
 function Test-Internet {
-    foreach ($h in 'www.microsoft.com', 'github.com') {
+    foreach ($u in 'http://www.msftconnecttest.com/connecttest.txt', 'https://github.com', 'https://www.google.com') {
         try {
-            $r = [Net.WebRequest]::Create("https://$h")
-            $r.Method = 'HEAD'; $r.Timeout = 8000
+            $r = [Net.WebRequest]::Create($u)
+            $r.Timeout = 10000
             $resp = $r.GetResponse(); $resp.Close(); return $true
+        } catch [Net.WebException] {
+            if ($_.Exception.Response) { return $true }
         } catch {}
     }
     return $false
+}
+
+# Programi zaman asimi ile calistirir (takilan kurulum tum islemi kilitlemesin).
+# Donus: cikis kodu, -1 baslatilamadi, -2 zaman asimi
+function Invoke-Process ([string]$File, [string]$Arguments = '', [int]$TimeoutSec = 900, [switch]$Visible) {
+    $style = if ($Visible) { 'Normal' } else { 'Hidden' }
+    try {
+        if ($Arguments) { $p = Start-Process -FilePath $File -ArgumentList $Arguments -PassThru -WindowStyle $style -ErrorAction Stop }
+        else            { $p = Start-Process -FilePath $File -PassThru -WindowStyle $style -ErrorAction Stop }
+    } catch {
+        Warn "Baslatilamadi: $File ($($_.Exception.Message))"; return -1
+    }
+    $null = $p.Handle   # ExitCode'un okunabilmesi icin gerekli
+    if (-not $p.WaitForExit($TimeoutSec * 1000)) {
+        try { $p.Kill() } catch {}
+        Warn "Zaman asimi ($TimeoutSec sn): $(Split-Path $File -Leaf)"
+        return -2
+    }
+    return $p.ExitCode
+}
+
+# Web sayfasini yonetici OLMAYAN normal tarayicida acar
+function Open-Url ([string]$Url) {
+    try { Start-Process explorer.exe -ArgumentList $Url } catch {}
 }
 
 # ---------------- kayit defteri ----------------

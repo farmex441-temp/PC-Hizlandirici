@@ -1,7 +1,7 @@
 ﻿# @name: Oyun Modu ve Oyun Önceliği
 # @category: Performans
 # @default: true
-# @desc: Oyun Modu açılır, Xbox Game Bar kaydı (Game DVR) kapatılır, Donanım Hızlandırmalı GPU Zamanlaması (HAGS) ve pencereli oyun iyileştirmeleri açılır, oyunlara CPU/GPU önceliği verilir, ağ kısıtlaması kaldırılır, fare ivmesi (işaretçi hassasiyeti) kapatılır, Shift'e 5 kez basınca çıkan Yapışkan Tuşlar uyarısı kapatılır.
+# @desc: Oyun Modu açılır, Xbox Game Bar kaydı (Game DVR) kapatılır, Donanım Hızlandırmalı GPU Zamanlaması (HAGS) ve pencereli oyun iyileştirmeleri açılır, oyunlara CPU/GPU önceliği verilir, ağ kısıtlaması kaldırılır, fare ivmesi (işaretçi hassasiyeti) kapatılır, Shift'e 5 kez basınca çıkan Yapışkan Tuşlar uyarısı kapatılır, Discord görüşmesinde Windows'un oyun sesini kısması engellenir.
 
 # --- Oyun Modu ---
 Set-Reg 'HKCU:\Software\Microsoft\GameBar' 'AllowAutoGameMode' 1
@@ -64,3 +64,7 @@ Set-Reg 'HKCU:\Control Panel\Accessibility\StickyKeys' 'Flags' '506' String
 Set-Reg 'HKCU:\Control Panel\Accessibility\ToggleKeys' 'Flags' '58' String
 Set-Reg 'HKCU:\Control Panel\Accessibility\Keyboard Response' 'Flags' '122' String
 Ok "Yapışkan tuş uyarıları kapalı."
+
+# --- Discord/TeamSpeak görüşmesinde Windows oyun sesini %80 kısmasın ---
+Set-Reg 'HKCU:\Software\Microsoft\Multimedia\Audio' 'UserDuckingPreference' 3
+Ok "Sesli görüşmede otomatik ses kısma kapalı."

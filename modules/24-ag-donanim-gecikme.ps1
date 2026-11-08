@@ -24,8 +24,9 @@ Ok "Teslim İyileştirme P2P kapalı (internet bant genişliğiniz başkalarına
 # --- Fiziksel ağ kartlarında güç tasarrufu kapalı ---
 $adapters = Get-NetAdapter -Physical -ErrorAction SilentlyContinue
 foreach ($a in $adapters) {
-    try { Disable-NetAdapterPowerManagement -Name $a.Name -NoRestart -ErrorAction Stop; Say "$($a.Name): güç yönetimi kapalı" } catch {}
-    foreach ($kw in '*EEE', 'EEELinkAdvertisement', 'AdvancedEEE', 'EnableGreenEthernet', 'GigaLite', 'PowerSavingMode', 'ULPMode', 'EnablePME', '*SelectiveSuspend') {
+    # Sadece güç tasarrufu kapatılır; Wake-on-LAN (uzaktan açma) ayarlarına dokunulmaz
+    try { Disable-NetAdapterPowerManagement -Name $a.Name -SelectiveSuspend -DeviceSleepOnDisconnect -NoRestart -ErrorAction Stop; Say "$($a.Name): güç tasarrufu kapalı" } catch {}
+    foreach ($kw in '*EEE', 'EEELinkAdvertisement', 'AdvancedEEE', 'EnableGreenEthernet', 'GigaLite', 'PowerSavingMode', 'ULPMode', '*SelectiveSuspend') {
         $prop = Get-NetAdapterAdvancedProperty -Name $a.Name -RegistryKeyword $kw -ErrorAction SilentlyContinue
         if ($prop) {
             try { Set-NetAdapterAdvancedProperty -Name $a.Name -RegistryKeyword $kw -RegistryValue 0 -NoRestart -ErrorAction Stop; Say "$($a.Name): $kw = 0" } catch {}

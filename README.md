@@ -33,9 +33,10 @@ irm https://github.com/farmex441-temp/PC-Hizlandirici/releases/latest/download/P
 
 ### Önerilen sıra (format sonrası)
 
-1. Windows kurulumunu bitirin, internete bağlanın.
-2. **Ekran kartı sürücüsünü kurun** (NVIDIA ayarlarının uygulanabilmesi için gerekli).
-3. PC Hızlandırıcı'yı çalıştırın → OPTİMİZE ET → yeniden başlatın.
+1. Windows kurulumunda (OOBE) OneDrive yedekleme sorulursa **"Dosyaları yalnızca bu bilgisayara kaydet"** seçin (yoksa OneDrive güvenlik için kaldırılmaz).
+2. Windows kurulumunu bitirin, **internete bağlanın** (kablo veya Wi-Fi).
+3. PC Hızlandırıcı'yı çalıştırın → OPTİMİZE ET. NVIDIA kartınız varsa en güncel sürücü otomatik kurulur. AMD kartlar için önce [Adrenalin sürücüsünü](https://www.amd.com/en/support/download/drivers.html) kurun.
+4. İşlem bitince yeniden başlatın. Toplam süre internet hızına göre ~15-30 dakika.
 
 ---
 
@@ -46,15 +47,16 @@ Her madde ayrı bir modüldür; arayüzde istediğinizi seçip istemediğinizi k
 | Kategori | Modül | Varsayılan |
 |---|---|:---:|
 | Güvenlik | **Geri yükleme noktası** oluşturur (her şeyden önce) | ✅ |
+| Güvenlik | **Windows lisansı** — etkin değilse anakarttaki orijinal OEM anahtarıyla / dijital lisansla yasal olarak etkinleştirir | ✅ |
 | Bileşenler | **DirectX, Visual C++ 2005-2022 (x86+x64), .NET Framework 3.5, .NET Desktop Runtime 8 + 10, XNA 4.0** — hepsi resmi Microsoft sunucularından, imzası doğrulanarak | ✅ |
 | Performans | **Nihai Performans güç planı** — CPU %100, çekirdek park yok, USB/PCIe/disk güç tasarrufu yok, uyku/hazırda bekletme/hızlı başlatma yok, power throttling yok | ✅ |
-| Performans | **Oyun Modu**, Game DVR kapalı, **HAGS** açık, pencereli oyun iyileştirmesi, oyunlara CPU/GPU önceliği, fare ivmesi kapalı, Yapışkan Tuşlar uyarısı kapalı | ✅ |
+| Performans | **Oyun Modu**, Game DVR kapalı, **HAGS** açık, pencereli oyun iyileştirmesi, oyunlara CPU/GPU önceliği, fare ivmesi kapalı, Yapışkan Tuşlar uyarısı kapalı, Discord görüşmesinde oyun sesinin kısılması kapalı | ✅ |
 | Performans | **Görsel efektler** performans modunda (yazı yumuşatma korunur) | ✅ |
-| Performans | **Dosya sistemi / bellek** — NTFS son erişim kapalı, 8.3 adları kapalı, TRIM açık, SSD'de SysMain kapalı | ✅ |
+| Performans | **Dosya sistemi / bellek** — NTFS son erişim kapalı, 8.3 adları kapalı, TRIM açık, SSD'de SysMain kapalı, 16 GB+ RAM'de bellek sıkıştırma kapalı | ✅ |
 | Performans | **Ağ ve donanım gecikmesi** — Nagle kapalı, Enerji Verimli Ethernet kapalı, aygıt güç tasarrufu kapalı, P2P güncelleme paylaşımı kapalı | ✅ |
 | Windows Temizliği | **Arka plan uygulamaları** kapalı | ✅ |
-| Windows Temizliği | **Başlangıç uygulamaları** kapalı (Görev Yöneticisi'nden geri açılabilir) | ✅ |
-| Windows Temizliği | **Bildirimler**, ipuçları, öneriler, reklamlar, otomatik uygulama kurulumu kapalı | ✅ |
+| Windows Temizliği | **Başlangıç uygulamaları** kapalı (touchpad sürücüleri korunur, Görev Yöneticisi'nden geri açılabilir), açılış gecikmesi kaldırılır | ✅ |
+| Windows Temizliği | **Tüm bildirimler** (güvenlik/güncelleme uyarıları dahil), ipuçları, öneriler, reklamlar, otomatik uygulama kurulumu kapalı | ✅ |
 | Windows Temizliği | **Telemetri**, reklam kimliği, etkinlik geçmişi, Başlat'taki Bing araması kapalı | ✅ |
 | Windows Temizliği | **Gereksiz servisler** kapalı / el ile (yazıcı, Bluetooth, ses, Xbox, güvenlik servislerine dokunulmaz) | ✅ |
 | Windows Temizliği | **Copilot, Widget'lar, Recall** kapalı | ✅ |
@@ -65,10 +67,14 @@ Her madde ayrı bir modüldür; arayüzde istediğinizi seçip istemediğinizi k
 | Görünüm | **Karanlık mod**, saydamlık kapalı | ✅ |
 | Görünüm | **Başlat menüsü** temizlenir (boş sabitlemeler, öneriler yok) | ✅ |
 | Görünüm | **Görev çubuğu** temizlenir (arama, Görev Görünümü, Widget, Copilot düğmeleri yok; "Görevi sonlandır" eklenir) | ✅ |
-| Görünüm | **Dosya Gezgini** — uzantılar görünür, klasik sağ tık menüsü | ✅ |
+| Görünüm | **Dosya Gezgini** — uzantılar görünür, klasik ve sadeleştirilmiş sağ tık menüsü | ✅ |
+| Görünüm | **Kilit ekranı atlanır** — doğrudan şifre/PIN ekranı gelir | ✅ |
+| Ekran Kartı | **NVIDIA sürücüsü** — yoksa veya eskiyse en güncel Game Ready sürücü NVIDIA'dan indirilip sessizce kurulur (imza doğrulamalı) | ✅ |
 | Ekran Kartı | **NVIDIA %100 performans profili** — FR33THY Ultimate ile aynı ayarlar, NVIDIA Profile Inspector ile (aşağıya bakın) | ✅ |
+| Ekran Kartı | **AMD Radeon ayarları** — Anti-Lag açık, V-Sync kapalı, doku filtreleme performans, Adrenalin reklam/katman kapalı | ✅ |
+| Ekran Kartı | **Monitör en yüksek Hz'e** ayarlanır (format sonrası 60 Hz'de kalan 144/240 Hz monitörler için) | ✅ |
 | Gelişmiş (Risk) | Çekirdek yalıtımı / VBS kapat (+%5-10 FPS, güvenlik katmanı azalır) | ⬜ |
-| Gelişmiş (Risk) | Xbox uygulamaları ve Game Bar'ı kaldır (Game Pass oyunları çalışmaz) | ⬜ |
+| Gelişmiş (Risk) | Xbox uygulaması ve Game Bar'ı kaldır (Xbox giriş altyapısı korunur; Game Pass kullanıyorsanız seçmeyin) | ⬜ |
 | Gelişmiş (Risk) | Windows Update sürücü güncellemelerini engelle | ⬜ |
 | Bakım | **Disk temizliği** — geçici dosyalar, güncelleme önbelleği, geri dönüşüm kutusu | ✅ |
 
@@ -93,7 +99,7 @@ Ayrıca PhysX GPU'ya alınır, MSI kesme modu açılır, NVIDIA telemetrisi kapa
 
 ### Bilerek YAPMADIKLARI
 
-Bu araç başkalarının da kullanacağı genel bir araç olduğu için şunlara **dokunmaz**: Windows Defender, güvenlik duvarı, UAC, Spectre/Meltdown korumaları, DEP ve Windows güncellemelerinin kendisi. Bunları kapatmak FPS'e anlamlı bir katkı yapmaz ama bilgisayarı ciddi şekilde savunmasız bırakır. İhtiyacınız varsa orijinal betikler [`ultimate-original/`](ultimate-original) klasöründe durur.
+Bu araç başkalarının da kullanacağı genel bir araç olduğu için şunlara **dokunmaz**: Windows Defender, güvenlik duvarı, UAC, Spectre/Meltdown korumaları, DEP ve Windows güncellemelerinin kendisi. Lisans atlatma/korsan etkinleştirme araçları (KMS, MAS vb.) da **içermez**; Windows yalnızca cihazın kendi yasal lisansıyla etkinleştirilir. Bunları kapatmak FPS'e anlamlı bir katkı yapmaz ama bilgisayarı ciddi şekilde savunmasız bırakır. İhtiyacınız varsa orijinal betikler [`ultimate-original/`](ultimate-original) klasöründe durur.
 
 ---
 

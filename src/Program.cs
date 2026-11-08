@@ -1,4 +1,4 @@
-// =====================================================================
+﻿// =====================================================================
 //  PC Hizlandirici - Windows oyun optimizasyon araci
 //  Arayuz + modul calistirici. Modullerin kendisi modules\*.ps1 icindedir.
 //  Derleme: build.ps1  (C# 5 / .NET Framework 4.8, ek kurulum gerektirmez)
@@ -21,8 +21,8 @@ using System.Windows.Forms;
 [assembly: AssemblyDescription("Format sonrası Windows oyun optimizasyonu")]
 [assembly: AssemblyProduct("PC Hızlandırıcı")]
 [assembly: AssemblyCopyright("MIT Lisansı - FR33THY/Ultimate tabanlı")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
 
 namespace PCHizlandirici
 {
@@ -191,7 +191,15 @@ namespace PCHizlandirici
                 {
                     if (cancelled())
                     {
-                        try { p.Kill(); } catch { }
+                        // Sadece powershell'i degil, baslattigi kurulumlari da (msiexec, DISM, NVIDIA setup) durdur
+                        try
+                        {
+                            var tk = Process.Start(new ProcessStartInfo("taskkill.exe", "/PID " + p.Id + " /T /F") { CreateNoWindow = true, UseShellExecute = false });
+                            if (tk != null) tk.WaitForExit(15000);
+                        }
+                        catch { }
+                        try { if (!p.HasExited) p.Kill(); } catch { }
+                        try { Process.Start(new ProcessStartInfo("reg.exe", "unload HKU\\PCH_Default") { CreateNoWindow = true, UseShellExecute = false }); } catch { }
                         break;
                     }
                 }
@@ -258,7 +266,7 @@ namespace PCHizlandirici
         RichTextBox log;
         ProgressBar progress;
         FlatBtn runBtn, btnDefaults, btnAll, btnNone, btnEdit;
-        volatile bool running, cancel;
+        volatile bool running, cancel, closeAfterRun;
         readonly StringBuilder logText = new StringBuilder();
 
         public MainForm(bool auto, bool reboot)
@@ -268,7 +276,7 @@ namespace PCHizlandirici
             SuspendLayout();
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
-            Text = "PC Hızlandırıcı v1.0";
+            Text = "PC Hızlandırıcı v1.1";
             Font = new Font("Segoe UI", 9.5f);
             BackColor = Theme.Back;
             ForeColor = Theme.Text;
@@ -548,7 +556,7 @@ namespace PCHizlandirici
             logText.Clear();
             progress.Maximum = list.Count;
             progress.Value = 0;
-            AppendLog("PC Hızlandırıcı v1.0  —  " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"), Theme.Accent);
+            AppendLog("PC Hızlandırıcı v1.1  —  " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"), Theme.Accent);
             AppendLog(Environment.OSVersion.VersionString + "  •  " + Environment.MachineName, Theme.Muted);
 
             var t = new Thread(() => RunAll(list)) { IsBackground = true };
@@ -605,6 +613,7 @@ namespace PCHizlandirici
                 running = false;
                 SetUiEnabled(true);
                 statusLabel.Text = cancel ? "İptal edildi." : "Tamamlandı. Değişikliklerin tamamı için yeniden başlatın.";
+                if (closeAfterRun) { Close(); return; }
                 if (cancel) return;
                 if (autoReboot) { Reboot(); return; }
                 if (MessageBox.Show(this, "Optimizasyon tamamlandı.\n\n" + ok + " başarılı, " + warn + " uyarılı, " + fail + " hatalı.\n\n" +
@@ -626,12 +635,17 @@ namespace PCHizlandirici
             foreach (var p in Process.GetProcessesByName("explorer"))
                 try { p.Kill(); } catch { }
             // Windows, Explorer'i normalde kendisi yeniden baslatir (AutoRestartShell)
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 30; i++)
             {
                 Thread.Sleep(500);
                 if (Process.GetProcessesByName("explorer").Length > 0) return;
             }
-            try { Process.Start("explorer.exe"); } catch { }
+            // Gezgin yonetici olarak calismasin diye normal kullanici yetkisiyle baslat
+            try
+            {
+                Process.Start(new ProcessStartInfo("runas.exe", "/trustlevel:0x20000 explorer.exe") { CreateNoWindow = true, UseShellExecute = false });
+            }
+            catch { }
         }
 
         static void Reboot()
@@ -690,17 +704,21 @@ namespace PCHizlandirici
 
         void AskCancel()
         {
-            if (MessageBox.Show(this, "Çalışan modül yarıda kesilecek. Durdurulsun mu?", "PC Hızlandırıcı", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show(this, "Çalışan modül yarıda kesilecek. Durdurulsun mu?", "PC Hızlandırıcı", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes && running)
                 cancel = true;
         }
 
         void OnClosingForm(object sender, FormClosingEventArgs e)
         {
             if (!running) return;
-            if (MessageBox.Show(this, "Optimizasyon devam ediyor. Kapatırsanız çalışan modül yarıda kalır. Yine de kapatılsın mı?", "PC Hızlandırıcı", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
-                e.Cancel = true;
-            else
+            e.Cancel = true;   // calisan modul duzgunce durdurulmadan pencere kapanmasin
+            if (closeAfterRun) return;
+            if (MessageBox.Show(this, "Optimizasyon devam ediyor. Kapatırsanız çalışan modül yarıda kalır. Yine de kapatılsın mı?", "PC Hızlandırıcı", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                closeAfterRun = true;
                 cancel = true;
+                statusLabel.Text = "Durduruluyor…";
+            }
         }
 
         public static bool IsAdmin()

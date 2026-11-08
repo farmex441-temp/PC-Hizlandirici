@@ -1,7 +1,7 @@
 ﻿# @name: Disk Temizliği
 # @category: Bakım
 # @default: true
-# @desc: Geçici dosyalar, Windows Update indirme önbelleği, Teslim İyileştirme önbelleği, hata raporları, küçük resim önbelleği ve Geri Dönüşüm Kutusu temizlenir. Kişisel dosyalarınıza dokunulmaz.
+# @desc: Geçici dosyalar, Teslim İyileştirme önbelleği, hata raporları, küçük resim önbelleği ve Geri Dönüşüm Kutusu temizlenir. Kişisel dosyalarınıza dokunulmaz.
 
 function Clear-Folder ([string]$Path) {
     if (Test-Path $Path) {
@@ -25,10 +25,8 @@ $freed += Clear-Folder "$env:SystemRoot\Temp"
 $freed += Clear-Folder "$env:ProgramData\Microsoft\Windows\WER\ReportArchive"
 $freed += Clear-Folder "$env:ProgramData\Microsoft\Windows\WER\ReportQueue"
 
-Say "Windows Update önbelleği temizleniyor..."
-Stop-Service wuauserv, bits -Force -ErrorAction SilentlyContinue
-$freed += Clear-Folder "$env:SystemRoot\SoftwareDistribution\Download"
-Start-Service wuauserv, bits -ErrorAction SilentlyContinue
+# Not: Windows Update indirme klasörüne bilerek dokunulmaz; format sonrası ilk güncellemeler
+# o sırada iniyor olabilir ve silinirse baştan indirilir.
 
 try { Delete-DeliveryOptimizationCache -Force -ErrorAction Stop } catch {}
 Get-ChildItem "$env:LOCALAPPDATA\Microsoft\Windows\Explorer" -Filter 'thumbcache_*.db' -Force -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue

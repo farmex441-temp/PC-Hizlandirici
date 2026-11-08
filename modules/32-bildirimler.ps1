@@ -1,7 +1,7 @@
 ﻿# @name: Bildirimleri, İpuçlarını ve Reklamları Kapat
 # @category: Windows Temizliği
 # @default: true
-# @desc: Uygulama bildirimleri (toast), kilit ekranı bildirimleri, Windows ipuçları/önerileri, "cihazınızı kurmayı bitirin" ekranları, Başlat menüsü reklamları, kilit ekranı reklamları ve Microsoft'un sizin yerinize otomatik uygulama (Candy Crush vb.) kurması kapatılır.
+# @desc: TÜM açılır bildirimler kapatılır (uygulamalar, Windows Güvenliği uyarıları ve güncelleme hatırlatmaları dahil; Defender tehditleri yine otomatik engeller, sadece bildirim göstermez). Ayrıca kilit ekranı bildirimleri, Windows ipuçları/önerileri, "cihazınızı kurmayı bitirin" ekranları, Başlat menüsü reklamları, kilit ekranı reklamları ve Microsoft'un sizin yerinize otomatik uygulama (Candy Crush vb.) kurması kapatılır.
 
 # --- Uygulama bildirimleri ---
 Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\PushNotifications' 'ToastEnabled' 0
